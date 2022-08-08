@@ -1,0 +1,7 @@
+# created by virtualenv automatically
+react_client/
+eCommerce/__pycache__/
+lib/
+bin/
+pyvenv.cfg
+db.sqlite3
