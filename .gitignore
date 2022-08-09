@@ -1,6 +1,7 @@
 # created by virtualenv automatically
+*/__pycache__/
+*/*/__pycache__/
 react_client/
-eCommerce/__pycache__/
 lib/
 bin/
 pyvenv.cfg
