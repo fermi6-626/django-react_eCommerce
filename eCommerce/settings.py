@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
     'django_server',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -79,7 +80,7 @@ WSGI_APPLICATION = 'eCommerce.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'eCommercedb',
         'USER': 'fermi',
         'PASSWORD': 'i am fermion',
@@ -135,3 +136,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'react_client/build/static'),
 ]
+
+AUTH_USER_MODEL = "django_server.Users"
