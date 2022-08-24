@@ -17,9 +17,11 @@ from django.contrib import admin
 from django.urls import path
 from django.views.generic import TemplateView
 from django_server.views import Register
+from django_server.views import Login
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('register', Register.as_view()),
+    path('login', Login.as_view()),
     # path('', TemplateView.as_view(template_name='index.html')),
 ]
