@@ -1,7 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.authentication import get_authorization_header
-from django_server.auth import create_access_token, create_refresh_token, decode_access_token
+from django_server.auth import JWTAuthentication, create_access_token, create_refresh_token
 from .serializers import UserSerializer
 from .models import Users
 from rest_framework import status
@@ -50,13 +49,10 @@ class Login(APIView):
         }
         return response
 
-class User(APIView):
-    def get(self, request):
-        auth = get_authorization_header(request).split()
 
-        if auth and len(auth) == 2:
-            token = auth[1].decode('utf-8')
-            id = decode_access_token(token)
-            user = Users.objects.get()
-        
-        return Response(auth)
+class User(APIView):
+    authentication_classes = [JWTAuthentication]
+    print("hello duxk")
+
+    def get(self, request):
+        return Response(UserSerializer(request.user).data)
