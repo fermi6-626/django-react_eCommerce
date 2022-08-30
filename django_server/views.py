@@ -1,6 +1,7 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.authentication import get_authorization_header
+from django_server.auth import create_access_token, create_refresh_token, decode_access_token
 from .serializers import UserSerializer
 from .models import Users
 from rest_framework import status
@@ -30,34 +31,32 @@ class Login(APIView):
             "message": "invalid credentials"
         }, status=status.HTTP_400_BAD_REQUEST)
 
-        def query(user):
-            if user is None:
-                return Response({"message": "invalid user"}, status=status.HTTP_404_NOT_FOUND)
-            if not user.check_password(password):
-                return err_stat
-            serializer = UserSerializer(user)
-            return serializer
+        user = Users.objects.filter(email=email).first()
+        if "username" in request.data:
+            user = Users.objects.filter(username=username).first()
 
-        if "email" in request.data and "username" not in request.data and "password" in request.data:
-            login_email = Users.objects.filter(email=email).first()
-            serializer = query(login_email)
-            return Response(query(login_email).data, status=status.HTTP_200_OK)
-            # if login_email is None:
-            #     return Response({"message": "invalid user"}, status=status.HTTP_404_NOT_FOUND)
-            # if not login_email.check_password(password):
-            #     return err_stat
-            # serializer = UserSerializer(login_email)
-            # return Response(serializer.data, status=status.HTTP_200_OK)
+        if user is None:
+            return Response({"message": "invalid user"}, status=status.HTTP_404_NOT_FOUND)
+        if not user.check_password(password):
+            return err_stat
 
-        elif "username" in request.data and "email" not in request.data and "password" in request.data:
-            login_username = Users.objects.filter(username=username).first()
-            serializer = query(login_username)
-            return Response(query(login_username).data, status=status.HTTP_200_OK)
-            # if login_username is None:
-            #     return Response({"message": "invalid user"}, status=status.HTTP_404_NOT_FOUND)
-            # if not login_username.check_password(password):
-            #     return err_stat
-            # serializer = UserSerializer(login_username)
-            # return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response({"message": "Request not understood"}, status=status.HTTP_400_BAD_REQUEST)
+        access_token = create_access_token(user.id)
+        refresh_token = create_refresh_token(user.id)
+        response = Response()
+        response.set_cookie(key='refresh_token',
+                            value=refresh_token, httponly=True)
+        response.data = {
+            'token': access_token
+        }
+        return response
+
+class User(APIView):
+    def get(self, request):
+        auth = get_authorization_header(request).split()
+
+        if auth and len(auth) == 2:
+            token = auth[1].decode('utf-8')
+            id = decode_access_token(token)
+            user = Users.objects.get()
+        
+        return Response(auth)
