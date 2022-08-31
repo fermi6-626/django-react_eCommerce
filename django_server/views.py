@@ -1,10 +1,9 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from django_server.auth import JWTAuthentication, create_access_token, create_refresh_token
-from .serializers import UserSerializer
 from .models import Users
 from rest_framework import status
-
+from .serializers import UserSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django_server.auth import Auth, create_token, refresh_token
 # Create your views here.
 
 
@@ -39,11 +38,11 @@ class Login(APIView):
         if not user.check_password(password):
             return err_stat
 
-        access_token = create_access_token(user.id)
-        refresh_token = create_refresh_token(user.id)
+        access_token = create_token(user.id)
+        session_token = refresh_token(user.id)
         response = Response()
-        response.set_cookie(key='refresh_token',
-                            value=refresh_token, httponly=True)
+        response.set_cookie(key='session-token',
+                            value=session_token, httponly=True)
         response.data = {
             'token': access_token
         }
@@ -51,8 +50,7 @@ class Login(APIView):
 
 
 class User(APIView):
-    authentication_classes = [JWTAuthentication]
-    print("hello duxk")
+    authentication_classes = [Auth]
 
     def get(self, request):
         return Response(UserSerializer(request.user).data)
