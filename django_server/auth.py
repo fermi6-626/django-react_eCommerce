@@ -1,41 +1,42 @@
 import jwt
 import datetime
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.authentication import BaseAuthentication, get_authorization_header
 from .models import Users
+from rest_framework import exceptions
+from rest_framework.authentication import BaseAuthentication, get_authorization_header
 
 
-class JWTAuthentication(BaseAuthentication):
+class Auth(BaseAuthentication):
     def authenticate(self, request):
         auth = get_authorization_header(request).split()
 
         if auth and len(auth) == 2:
             token = auth[1].decode('utf-8')
-            id = decode_access_token(token)
+            id = decode_token(token)
             user = Users.objects.get(pk=id)
-            return user
-        return Response({"message": "Authentication error"}, status=status.HTTP_401_UNAUTHORIZED)
+            return (user, None)
+
+        # rest_framework exception handler wtill convert it into appropriate Response with status_code
+        raise exceptions.AuthenticationFailed('Authentication Error')
 
 
-def create_access_token(id):
+def create_token(id):
     return jwt.encode({
         'user_id': id,
         'iat': datetime.datetime.utcnow(),
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
-    }, 'access_secret', algorithm='HS256')
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=5),
+    }, 'access_token', algorithm='HS256')
 
 
-def create_refresh_token(id):
+def refresh_token(id):
     return jwt.encode({
         'user_id': id,
         'iat': datetime.datetime.utcnow(),
         'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7),
-    }, 'refresh_secret', algorithm='HS256')
+    }, 'session_token', algorithm='HS256')
 
 
-def decode_access_token(token):
+def decode_token(token):
     try:
-        return jwt.decode(token, 'access_secret', algorithm='HS256').get('user_id')
+        return jwt.decode(token, 'access_token', algorithms='HS256').get('user_id')
     except:
-        return Response({"message": "Authentication error"}, status=status.HTTP_401_UNAUTHORIZED)
+        raise exceptions.AuthenticationFailed('Authentication Error')
