@@ -5,4 +5,4 @@ react_client/
 lib/
 bin/
 pyvenv.cfg
-db.sqlite3
+django_server/migrations
