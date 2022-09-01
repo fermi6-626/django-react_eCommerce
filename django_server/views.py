@@ -1,9 +1,10 @@
-from .models import Users
-from rest_framework import status
+import datetime
+from .models import Tokens, Users
+from rest_framework import status, exceptions
 from .serializers import UserSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django_server.auth import Auth, create_token, refresh_token
+from django_server.auth import Auth, create_token, decode_token, refresh_token
 # Create your views here.
 
 
@@ -40,6 +41,12 @@ class Login(APIView):
 
         access_token = create_token(user.id)
         session_token = refresh_token(user.id)
+        #when logging in Token in models.py is populated with following data
+        Tokens.objects.create(
+            user_id=user.id,
+            token=session_token,
+            expired=datetime.datetime.utcnow() + datetime.timedelta(days=7)
+        )
         response = Response()
         response.set_cookie(key='session-token',
                             value=session_token, httponly=True)
@@ -54,3 +61,33 @@ class User(APIView):
 
     def get(self, request):
         return Response(UserSerializer(request.user).data)
+
+
+class RefreshSession(APIView):
+    def post(self, request):
+        refresh_token = request.COOKIES.get('session-token')
+        id = decode_token(refresh_token, 'session_token')
+
+        if not Tokens.objects.filter(
+            user_id=id,
+            token=refresh_token,
+            expired=datetime.datetime.now(tz=datetime.timezone.utc)
+        ).exists():
+            raise exceptions.AuthenticationFailed('Authentication Error!')
+        access_token = create_token(id)
+
+        return Response({
+            'token': access_token
+        })
+
+
+class Logout(APIView):
+    def post(self, request):
+        Tokens.objects.filter(
+            token=request.COOKIES.get('session-token')).delete()
+        response = Response()
+        response.delete_cookie(key='session-token')
+        response.data = {
+            'message': 'Successfully logged out!'
+        }
+        return response
