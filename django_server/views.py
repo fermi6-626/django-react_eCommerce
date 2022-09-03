@@ -98,13 +98,10 @@ class Logout(APIView):
 class ResetPasswd(APIView):
     def post(self, request):
         token = ''.join(random.choice(string.ascii_letters) for i in range(32))
-
         Reset.objects.create(
             email=request.data.get('email'),
             token=token
         )
-
-        
         return Response({
             'message': "Your password has been reset!"
         }, status=status.HTTP_200_OK)
