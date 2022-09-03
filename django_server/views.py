@@ -1,5 +1,7 @@
 import datetime
-from .models import Tokens, Users
+import random
+import string
+from .models import Reset, Tokens, Users
 from rest_framework import status, exceptions
 from .serializers import UserSerializer
 from rest_framework.views import APIView
@@ -41,7 +43,7 @@ class Login(APIView):
 
         access_token = create_token(user.id)
         session_token = refresh_token(user.id)
-        #when logging in Token in models.py is populated with following data
+        # when logging in Token in models.py is populated with following data
         Tokens.objects.create(
             user_id=user.id,
             token=session_token,
@@ -71,7 +73,7 @@ class RefreshSession(APIView):
         if not Tokens.objects.filter(
             user_id=id,
             token=refresh_token,
-            expired=datetime.datetime.now(tz=datetime.timezone.utc)
+            expired__gt=datetime.datetime.now(tz=datetime.timezone.utc)
         ).exists():
             raise exceptions.AuthenticationFailed('Authentication Error!')
         access_token = create_token(id)
@@ -91,3 +93,18 @@ class Logout(APIView):
             'message': 'Successfully logged out!'
         }
         return response
+
+
+class ResetPasswd(APIView):
+    def post(self, request):
+        token = ''.join(random.choice(string.ascii_letters) for i in range(32))
+
+        Reset.objects.create(
+            email=request.data.get('email'),
+            token=token
+        )
+
+        
+        return Response({
+            'message': "Your password has been reset!"
+        }, status=status.HTTP_200_OK)
