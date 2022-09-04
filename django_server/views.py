@@ -1,6 +1,7 @@
 import datetime
 import random
 import string
+from django.core.mail import send_mail
 from .models import Reset, Tokens, Users
 from rest_framework import status, exceptions
 from .serializers import UserSerializer
@@ -98,9 +99,16 @@ class Logout(APIView):
 class ResetPasswd(APIView):
     def post(self, request):
         token = ''.join(random.choice(string.ascii_letters) for i in range(32))
+        email = request.data.get('email')
         Reset.objects.create(
-            email=request.data.get('email'),
+            email=email,
             token=token
+        )
+        send_mail(
+            subject='Did you forget your password again?',
+            message='Click here to reset your password',
+            from_email='reset@email.com',
+            recipient_list=[email],
         )
         return Response({
             'message': "Your password has been reset!"
