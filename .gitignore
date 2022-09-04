@@ -6,3 +6,4 @@ lib/
 bin/
 pyvenv.cfg
 django_server/migrations
+django_server/*.json
