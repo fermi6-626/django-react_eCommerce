@@ -86,8 +86,8 @@ DATABASES = {
         'NAME': 'eCommercedb',
         'USER': 'fermi',
         'PASSWORD': 'i am fermion',
-        'HOST':'127.0.0.1',
-        'PORT':'5432',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
@@ -143,3 +143,6 @@ AUTH_USER_MODEL = "django_server.Users"
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
+
+EMAIL_HOST = '0.0.0.0'
+EMAIL_PORT = 1025
