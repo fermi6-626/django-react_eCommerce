@@ -8,13 +8,11 @@ from rest_framework.authentication import BaseAuthentication, get_authorization_
 class Auth(BaseAuthentication):
     def authenticate(self, request):
         auth = get_authorization_header(request).split()
-
         if auth and len(auth) == 2:
             token = auth[1].decode('utf-8')
             id = decode_token(token, 'access_token')
             user = Users.objects.get(pk=id)
             return (user, None)
-
         # rest_framework exception handler wtill convert it into appropriate Response with status_code
         raise exceptions.AuthenticationFailed('Authentication Error!')
 
