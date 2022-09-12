@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.views.generic import TemplateView
-from django_server.views import Logout, Register, Login, ResetPasswd, User, RefreshSession
+from django_server.views import Logout, Register, Login, ForgotPasswd, ResetPasswd, User, RefreshSession
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,6 +25,7 @@ urlpatterns = [
     path('profile', User.as_view()),
     path('refresh', RefreshSession.as_view()),
     path('logout', Logout.as_view()),
+    path('forgot', ForgotPasswd.as_view()),
     path('reset', ResetPasswd.as_view()),
     # path('', TemplateView.as_view(template_name='index.html')),
 ]
