@@ -16,11 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.views.generic import TemplateView
-from django_server.views import Logout, Register, Login, ForgotPasswd, ResetPasswd, User, RefreshSession
+from django_server.views import Logout, Signup, Login, ForgotPasswd, ResetPasswd, User, RefreshSession
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('register', Register.as_view()),
+    path('signup', Signup.as_view()),
     path('login', Login.as_view()),
     path('profile', User.as_view()),
     path('refresh', RefreshSession.as_view()),
