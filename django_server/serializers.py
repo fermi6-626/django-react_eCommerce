@@ -1,4 +1,3 @@
-from dataclasses import fields
 from rest_framework.serializers import ModelSerializer
 from .models import Users
 
@@ -18,4 +17,3 @@ class UserSerializer(ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
-
