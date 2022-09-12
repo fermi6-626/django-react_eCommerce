@@ -11,10 +11,10 @@ from django_server.auth import Auth, create_token, decode_token, refresh_token
 # Create your views here.
 
 
-class Register(APIView):
+class Signup(APIView):
     def post(self, request):
         data = request.data
-        if data['password'] != data['pass_confirm']:
+        if data['password'] != data['confirm_pass']:
             return Response('Passwords do not match.')
         serializer = UserSerializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -112,7 +112,7 @@ class ForgotPasswd(APIView):
 class ResetPasswd(APIView):
     def post(self, request):
         data = request.data
-        if data.get('password') != data.get('pass_confirm'):
+        if data.get('password') != data.get('confirm_pass'):
             return Response('Passwords do not match.')
         reset_passwd = Reset.objects.filter(
             token=data.get('token')
